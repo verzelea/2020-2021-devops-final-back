@@ -1,45 +1,44 @@
 version: 2
 jobs:
   build:
-    docker: 
-      - image: python:3.8-buster
-    working_directory: ~/back
-    steps: 
+    docker:
+      - image: circleci/python:3.7.9-stretch-browsers
+    steps:
       - checkout
       - restore_cache:
-          key: deps-{{ checksum "requirements/dev.txt"}}-{{ .Environment.CACHE_VERSION }}
-      - run: 
-          name: set env vars
-          command: | 
-            export CONDUIT_SECRET='I<3Cookies'
-            export FLASK_APP=./autoapp.py
-            export FLASK_DEBUG=1
-      - run :
-          name: install deps
+          key: deps1-{{ .Branch }}-{{ checksum "requirements/dev.txt" }}
+      - run:
+          name: Install dependencies in a python venv
           command: |
             python3 -m venv venv
             . venv/bin/activate
-            pip install -r requirements/dev.txt
+            pip install -r requirements/dev.txt            
       - save_cache:
-          key: deps-{{ checksum "requirements/dev.txt"}}-{{ .Environment.CACHE_VERSION }}
-          paths:
+          key: deps1-{{ .Branch }}-{{ checksum "requirements/dev.txt" }}
+          paths: 
             - "venv"
   test:
-    docker: 
-      - image: circleci/postgres:9.6.2-alpine
+    docker:
+      - image: circleci/python:3.7.9-stretch-browsers
         environment:
-          POSTGRES_USER: myUsr
-          POSTGRES_DB: psdb
+          FLASK_APP: autoapp.py
+          CONDUIT_SECRET: $CONDUIT_SECRET
+          FLASK_DEBUG: 1
+          DATABASE_URL: postgresql://$POSTGRES_USER:$POSTGRES_PASSWORD@localhost:5432/$POSTGRES_DB
+      - image: circleci/postgres:9.5.19-alpine
+        environment:
+          POSTGRES_USER: $POSTGRES_USER
+          POSTGRES_DB: $POSTGRES_DB
           POSTGRES_PASSWORD: $POSTGRES_PASSWORD
     steps:
       - checkout
       - restore_cache:
-          key: deps-{{ checksum "requirements/dev.txt"}}-{{ .Environment.CACHE_VERSION }}
+          key: deps1-{{ .Branch }}-{{ checksum "requirements/dev.txt" }}
       - run:
-          name: postgres
-          command : dockerize -wait tcp://localhost:5432 -timeout 1m
-      - run:
-          name : test
+          name: Wait for postgres
+          command: dockerize -wait tcp://localhost:5432 -timeout 1m
+      - run: 
+          name: running test
           command: |
             . venv/bin/activate
             flask db upgrade
