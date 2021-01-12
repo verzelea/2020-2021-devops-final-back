@@ -27,22 +27,24 @@ jobs:
             - "/usr/local/lib/python3.8/site-packages"
   test:
     docker: 
-      - image: python:3.8-buster
+      - image: circleci/postgres:9.6.2-alpine
+        environment:
+          POSTGRES_USER: myUsr
+          POSTGRES_DB: psdb
+          POSTGRES_PASSWORD: somePwd
     steps:
       - checkout
       - restore_cache:
           key: deps9-{{ checksum "Pipfile.lock" }}
+          - run: 
+              name: postgres
+              command : dockerize -wait tcp://localhost:5432 -timeout 1m
       - run:
           name : test
           command: |
-            docker container run --name flask_db_test -e POSTGRES_PASSWORD=somePwd -e POSTGRES_USER=myUsr -p 5432:5432 -d postgres
-            sleep 1
-            export DATABASE_URL=postgresql://myUsr:somePwd@localhost:5432/myUsr
+            . venv/bin/activate
             flask db upgrade
             flask test
-            docker container stop flask_db_test
-            docker container rm flask_db_test
-            unset DATABASE_URL
 workflows:
   version: 2
   build-test:
