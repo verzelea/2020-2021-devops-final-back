@@ -1,0 +1,28 @@
+version: 2
+jobs:
+  build:
+    docker: 
+      - image: python:3.8-alpine
+    working_directory: ~/back
+    steps: 
+      - checkout
+      - restore_cache:
+          key: deps9-{{ checksum "Pipfile.lock" }}
+      - run: 
+          name: set env vars
+          command: | 
+            export CONDUIT_SECRET='something-really-secret'
+            export FLASK_APP=/path/to/autoapp.py
+            export FLASK_DEBUG=1
+            pip install -r requirements/dev.txt --user
+      - save_cache:
+          key: deps9-{{ checksum "Pipfile.lock" }}
+          paths:
+            - "/usr/local/bin"
+            - "/usr/local/lib/python3.6/site-packages"
+
+workflows:
+  version: 2
+  build-test:
+    jobs:
+      - build  
