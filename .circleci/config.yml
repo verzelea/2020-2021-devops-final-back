@@ -1,28 +1,21 @@
-version: 2
+version: 2.1
+
+orbs:
+  python: circleci/python@0.2.1
+
 jobs:
-  build:
-    docker: 
-      - image: python:3.8-alpine
-    working_directory: ~/back
-    steps: 
+  build-and-test:
+    executor: python/default
+    steps:
       - checkout
-      - restore_cache:
-          key: deps9-{{ checksum "Pipfile.lock" }}
-      - run: 
-          name: set env vars
-          command: | 
-            export CONDUIT_SECRET='something-really-secret'
-            export FLASK_APP=/path/to/autoapp.py
-            export FLASK_DEBUG=1
-            pip install -r requirements/dev.txt --user
-      - save_cache:
-          key: deps9-{{ checksum "Pipfile.lock" }}
-          paths:
-            - "/usr/local/bin"
-            - "/usr/local/lib/python3.6/site-packages"
+      - python/load-cache
+      - python/install-deps
+      - python/save-cache
+      - run:
+          command: ./manage.py test
+          name: Test
 
 workflows:
-  version: 2
-  build-test:
+  main:
     jobs:
-      - build  
+      - build-and-test
