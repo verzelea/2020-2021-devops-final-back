@@ -1,21 +1,33 @@
-version: 2.1
-
-orbs:
-  python: circleci/python@0.2.1
-
+version: 2
 jobs:
-  build-and-test:
-    executor: python/default
-    steps:
+  build:
+    docker: 
+      - image: python:3.8-buster
+    working_directory: ~/back
+    steps: 
       - checkout
-      - python/load-cache
-      - python/install-deps
-      - python/save-cache
-      - run:
-          command: ./manage.py test
-          name: Test
+      - restore_cache:
+          key: deps9-{{ checksum "Pipfile.lock" }}
+      - run: 
+          name: set env vars
+          command: | 
+            export CONDUIT_SECRET='something-really-secret'
+            export FLASK_APP=./autoapp.py
+            export FLASK_DEBUG=1
+      - run : 
+          name: install deps
+          command: |
+            /usr/local/bin/python -m pip install --upgrade pip
+            apk update && apk add postgresql-dev gcc python3-dev musl-dev
+            pip install -r requirements/dev.txt --user
+      - save_cache:
+          key: deps9-{{ checksum "Pipfile.lock" }}
+          paths:
+            - "/usr/local/bin"
+            - "/usr/local/lib/python3.8/site-packages"
 
 workflows:
-  main:
+  version: 2
+  build-test:
     jobs:
-      - build-and-test
+      - build  
