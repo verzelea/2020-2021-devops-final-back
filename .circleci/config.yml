@@ -7,24 +7,23 @@ jobs:
     steps: 
       - checkout
       - restore_cache:
-          key: deps9-{{ checksum "Pipfile.lock" }}
+          deps-{{ checksum "requirements/dev.txt"}}-{{ .Environment.CACHE_VERSION }}
       - run: 
           name: set env vars
           command: | 
             export CONDUIT_SECRET='I<3Cookies'
             export FLASK_APP=./autoapp.py
             export FLASK_DEBUG=1
-      - run : 
+      - run :
           name: install deps
           command: |
-            /usr/local/bin/python -m pip install --upgrade pip
-            apk update && apk add postgresql-dev gcc python3-dev musl-dev
-            pip install -r requirements/dev.txt --user
+            python3 -m venv venv
+            . venv/bin/activate
+            pip install -r requirements/dev.txt
       - save_cache:
-          key: deps9-{{ checksum "Pipfile.lock" }}
+          key: deps-{{ checksum "requirements/dev.txt"}}-{{ .Environment.CACHE_VERSION }}
           paths:
-            - "/usr/local/bin"
-            - "/usr/local/lib/python3.8/site-packages"
+            - "venv"
   test:
     docker: 
       - image: circleci/postgres:9.6.2-alpine
@@ -35,7 +34,7 @@ jobs:
     steps:
       - checkout
       - restore_cache:
-          key: deps9-{{ checksum "Pipfile.lock" }}
+          key: deps-{{ checksum "requirements/dev.txt"}}-{{ .Environment.CACHE_VERSION }}
           - run: 
               name: postgres
               command : dockerize -wait tcp://localhost:5432 -timeout 1m
@@ -51,5 +50,7 @@ workflows:
     jobs:
       - build
       - test:
+          context:
+            - back_final
           requires:
             - build
