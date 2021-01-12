@@ -31,7 +31,7 @@ jobs:
         environment:
           POSTGRES_USER: myUsr
           POSTGRES_DB: psdb
-          POSTGRES_PASSWORD: somePwd
+          POSTGRES_PASSWORD: $POSTGRES_PASSWORD
     steps:
       - checkout
       - restore_cache:
