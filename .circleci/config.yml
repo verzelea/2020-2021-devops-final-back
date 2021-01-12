@@ -35,9 +35,9 @@ jobs:
       - checkout
       - restore_cache:
           key: deps-{{ checksum "requirements/dev.txt"}}-{{ .Environment.CACHE_VERSION }}
-          - run: 
-              name: postgres
-              command : dockerize -wait tcp://localhost:5432 -timeout 1m
+      - run:
+          name: postgres
+          command : dockerize -wait tcp://localhost:5432 -timeout 1m
       - run:
           name : test
           command: |
