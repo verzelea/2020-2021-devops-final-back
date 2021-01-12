@@ -11,7 +11,7 @@ jobs:
       - run: 
           name: set env vars
           command: | 
-            export CONDUIT_SECRET='something-really-secret'
+            export CONDUIT_SECRET='I<3Cookies'
             export FLASK_APP=./autoapp.py
             export FLASK_DEBUG=1
       - run : 
@@ -27,7 +27,6 @@ jobs:
             - "/usr/local/lib/python3.8/site-packages"
 
 workflows:
-  version: 2
   build-test:
     jobs:
       - build  
