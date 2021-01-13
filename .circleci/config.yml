@@ -45,19 +45,24 @@ jobs:
             flask test
   build_docker:
     environment:
-      IMAGE_NAME: grennrich/my-awesome-ci-expr
+      IMAGE_NAME: grennrich/devoptpfinal-back
     docker:
       - image: circleci/buildpack-deps:stretch
     steps:
       - checkout
+      - setup_remote_docker
+      - run: docker image build --tag $IMAGE_NAME:app .
+      - run: docker save -o image.tar $IMAGE_NAME
+      - persist_to_workspace:
+          root: .
+          paths:
+            - ./image.tar
 workflows:
   version: 2
   build-test:
     jobs:
       - build
       #- test:
-      #    context:
-      #      - back_final
       #    requires:
       #      - build
       - build_docker:
