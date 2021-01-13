@@ -60,9 +60,9 @@ workflows:
       #    requires:
       #      - build
       - build_docker:
-          context:
-            - back_final
           requires:
             # - test
             - build
+          context:
+            - back_final
         
