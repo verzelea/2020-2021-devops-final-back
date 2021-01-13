@@ -17,6 +17,7 @@ jobs:
           key: deps1-{{ .Branch }}-{{ checksum "requirements/dev.txt" }}
           paths: 
             - "venv"
+
   test:
     docker:
       - image: circleci/python:3.7.9-stretch-browsers
@@ -43,6 +44,7 @@ jobs:
             . venv/bin/activate
             flask db upgrade
             flask test
+
   build_docker:
     environment:
       IMAGE_NAME: grennrich/devoptpfinal-back
@@ -57,6 +59,15 @@ jobs:
           root: .
           paths:
             - ./image.tar
+
+  push_docker:
+    environment:
+      IMAGE_NAME: grennrich/devoptpfinal-back
+    docker:
+      - image: circleci/buildpack-deps:stretch
+    steps:
+      - setup_remote_docker
+
 workflows:
   version: 2
   build-test:
@@ -70,4 +81,12 @@ workflows:
           requires:
             # - test
             - build
+      - push_docker:
+          requires:
+            - build_docker
+          context: Docker
+          filters:
+            branches:
+              only:
+                - main
         
