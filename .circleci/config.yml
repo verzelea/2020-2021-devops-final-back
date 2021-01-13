@@ -26,7 +26,16 @@ jobs:
         - run: 
             name: Heroku deploy
             command: |
+            git config --global push.default matching
               git push https://heroku:$HEROKU_API_KEY@git.heroku.com/$HEROKU_PROJECT_NAME.git main
+        - run:
+            name: Smoke test
+            command: |
+              HTTPCODE=`curl -s -o /dev/null -w "%{http_code}" https://$HEROKU_PROJECT_NAME.herokuapp.com/api/articles`
+              if [ "$HTTPCODE" -ne 200 ];then
+                echo "heroku app not responding, failing deploy"
+                exit 1
+              fi
 
   test:
     docker:
@@ -106,17 +115,9 @@ workflows:
           requires:
             - build_docker
           context: Docker
-          filters:
-            branches:
-              only:
-                - main
       - deploy_heroku:
           requires:
             # - test
             - build
           context: heroku
-          filters:
-            branches:
-              only:
-                - main
         
