@@ -12,7 +12,7 @@ jobs:
           command: |
             python3 -m venv venv
             . venv/bin/activate
-            pip install -r requirements/dev.txt            
+            pip install -r requirements/dev.txt
       - save_cache:
           key: deps1-{{ .Branch }}-{{ checksum "requirements/dev.txt" }}
           paths: 
@@ -44,7 +44,7 @@ jobs:
             flask test
   build_docker:
     environment:
-      IMAGE_NAME: grennrich/devoptpfinal
+      IMAGE_NAME: grennrich/my-awesome-ci-expr
     docker:
       - image: circleci/buildpack-deps:stretch
     steps:
