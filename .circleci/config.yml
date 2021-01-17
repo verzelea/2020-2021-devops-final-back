@@ -58,7 +58,7 @@ jobs:
 
   push_docker:
     environment:
-      IMAGE_NAME: grennrich/devoptpfinal-back
+      IMAGE_NAME: grennrich/devoptpfinal
     docker:
       - image: circleci/buildpack-deps:stretch
     steps:
@@ -77,7 +77,7 @@ jobs:
 
   build_docker:
       environment:
-        IMAGE_NAME: grennrich/devoptpfinal-back
+        IMAGE_NAME: grennrich/devoptpfinal
       docker:
         - image: circleci/buildpack-deps:stretch
       steps:
