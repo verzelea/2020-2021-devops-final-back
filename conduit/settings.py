@@ -25,10 +25,14 @@ class Config(object):
         'http://localhost:4200',
         'http://0.0.0.0:4000',
         'http://localhost:4000',
+        'https://devoptpfinal.herokuapp.com/api/articles',
+        'https://devoptpfinal.herokuapp.com',
+        'http://0.0.0.0:5432',
+        'http://localhost:5432',
         'http://0.0.0.0:' + os.environ.get('PORT', '8080'),
         'https://0.0.0.0:' + os.environ.get('PORT', '8080'),
         'https://devopstpfinal-front.netlify.app',
-        os.environ.get('FRONT_PROD_URL', ''),
+        'http://devopstpfinal-front.netlify.app',
     ]
     JWT_HEADER_TYPE = 'Token'
 
